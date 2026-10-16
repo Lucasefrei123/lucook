@@ -13,6 +13,7 @@ export function ChoixSegmente<T extends string>({
   valeur,
   surChangement,
   classeCochee,
+  classeGrille,
   erreur,
 }: {
   nom: string;
@@ -21,6 +22,7 @@ export function ChoixSegmente<T extends string>({
   valeur: T | null;
   surChangement: (valeur: T | null) => void;
   classeCochee: string;
+  classeGrille?: string;
   erreur?: string;
 }) {
   const idErreur = erreur ? `${nom}-erreur` : undefined;
@@ -31,7 +33,7 @@ export function ChoixSegmente<T extends string>({
       <div
         className={cn(
           "grid gap-px border bg-cloison",
-          options.length > 3 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3",
+          classeGrille ?? (options.length > 3 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"),
           erreur ? "border-destructive" : "border-cloison",
         )}
       >
