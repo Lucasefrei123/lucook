@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+  "dev": "next dev",
+  "lint": "eslint .",
+  "typecheck": "tsc --noEmit",
+  "build": "npm run lint && npm run typecheck && next build",
+  "start": "next start"
   },
+  
   "dependencies": {
     "next": "16.4.2",
     "react": "19.3.0",
