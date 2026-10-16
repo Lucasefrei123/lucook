@@ -71,7 +71,6 @@ export default async function PageAdmin() {
           </tbody>
         </table>
       </section>
-
     </main>
   );
 }
