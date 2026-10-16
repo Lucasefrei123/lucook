@@ -11,6 +11,7 @@ export type StyleMode = {
   trait: string;
   bouton: string;
   repos: string;
+  coche: string;
 };
 
 export const STYLES_MODE: Record<Mode, StyleMode> = {
@@ -24,6 +25,7 @@ export const STYLES_MODE: Record<Mode, StyleMode> = {
     trait: "border-frigo-trait",
     bouton: "bg-frigo text-frigo-contraste hover:bg-frigo/85",
     repos: "bg-card text-foreground hover:bg-frigo-doux",
+    coche: "has-checked:bg-frigo has-checked:text-frigo-contraste",
   },
   envie: {
     titre: "Envie",
@@ -35,6 +37,7 @@ export const STYLES_MODE: Record<Mode, StyleMode> = {
     trait: "border-envie-trait",
     bouton: "bg-envie text-envie-contraste hover:bg-envie/85",
     repos: "bg-card text-foreground hover:bg-envie-doux",
+    coche: "has-checked:bg-envie has-checked:text-envie-contraste",
   },
   sport: {
     titre: "Sport",
@@ -46,6 +49,7 @@ export const STYLES_MODE: Record<Mode, StyleMode> = {
     trait: "border-sport-trait",
     bouton: "bg-sport text-sport-contraste hover:bg-sport/85",
     repos: "bg-card text-foreground hover:bg-sport-doux",
+    coche: "has-checked:bg-sport has-checked:text-sport-contraste",
   },
 };
 
