@@ -80,6 +80,18 @@ export const LIBELLES_BUDGET: Record<Budget, string> = {
   large: "Sans compter",
 };
 
+const FORMAT_DATE = new Intl.DateTimeFormat("fr-FR", {
+  dateStyle: "long",
+  timeStyle: "short",
+  timeZone: "Europe/Paris",
+});
+
+export function formaterDate(iso: string) {
+  return FORMAT_DATE.format(new Date(iso));
+}
+
+export const MOTIF_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function formaterDuree(minutes: number | null | undefined) {
   if (!minutes) return "—";
   if (minutes < 60) return `${minutes} min`;
