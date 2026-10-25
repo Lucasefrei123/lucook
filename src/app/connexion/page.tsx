@@ -56,7 +56,7 @@ export default function PageConnexion({
           <div className="flex flex-col gap-2">
             <h2 className="text-xl">Connexion</h2>
             <p className="text-sm text-muted-foreground">
-              Pas de mot de passe : on t&apos;envoie un lien magique par e-mail.
+              Connecte-toi avec ton mot de passe, ou reçois un lien magique par e-mail.
             </p>
           </div>
           <Suspense fallback={<Skeleton className="h-28 w-full rounded-[2px]" />}>
