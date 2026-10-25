@@ -10,7 +10,7 @@ Lucook propose trois recettes adaptées à la situation de l'utilisateur connect
 - **Envie** : l'utilisateur décrit une envie (plat, humeur, saison) et peut préciser un temps maximum, un budget et une difficulté.
 - **Sport** : l'utilisateur choisit un objectif (prise de masse, sèche, maintien) et/ou des apports cibles en kcal, protéines, glucides et lipides. Chaque recette indique ses macros estimées.
 
-Le parcours est le suivant : l'utilisateur se connecte par lien magique et envoie sa demande. La génération se fait en arrière-plan, et la page de suivi se met à jour en temps réel jusqu'à l'affichage des trois recettes. Celles-ci sont enregistrées et rattachées à leur auteur.
+Le parcours est le suivant : l'utilisateur se connecte (mot de passe ou lien magique) et envoie sa demande. La génération se fait en arrière-plan, et la page de suivi se met à jour en temps réel jusqu'à l'affichage des trois recettes. Celles-ci sont enregistrées et rattachées à leur auteur.
 
 > Pour tester l'application malgré la limite d'envoi d'e-mails décrite plus bas (voir *Limites et améliorations possibles*), des comptes de démonstration (utilisateur et administrateur) sont fournis dans le mail de rendu. Aucun identifiant n'est stocké dans ce dépôt.
 
@@ -26,7 +26,7 @@ https://lucook-wmgi.vercel.app
 
 ```
 Navigateur (Next.js, composants React)
-   │  connexion par lien magique et lectures via la RLS (Supabase Auth + Postgres)
+   │  connexion (mot de passe ou lien magique) et lectures via la RLS (Supabase Auth + Postgres)
    │  envoi direct de la photo dans le bucket privé (Supabase Storage)
    │  abonnement au statut de la génération (Supabase Realtime)
    ▼
@@ -48,7 +48,7 @@ Vercel ─ POST /api/generations ──► vérifie la session, valide (Zod), ap
 |---|---|
 | **Vercel** | Hébergement de l'application Next.js 16 (App Router), des routes API et des fonctions serverless (worker). |
 | **Supabase Postgres** | Données : profils, générations, recettes, journal des e-mails. Row Level Security sur toutes les tables. |
-| **Supabase Auth** | Connexion par lien magique (e-mails envoyés via le SMTP de Resend). |
+| **Supabase Auth** | Connexion par e-mail et mot de passe, ou par lien magique (e-mails envoyés par le SMTP par défaut de Supabase). |
 | **Modèle d'IA hébergé** | Transforme la demande (texte et/ou photo) en 3 recettes au format JSON. Appelé uniquement côté serveur. |
 | **Upstash Redis** | Limitation de débit par utilisateur : 5 générations et 5 e-mails par heure, en fenêtre glissante. |
 
@@ -99,7 +99,7 @@ Chaque table a une colonne `user_id`.
 ### Prérequis
 
 - Node.js 20.9 ou plus récent, et npm.
-- Un projet **Supabase** (base, Auth, Storage, Realtime), une base **Upstash Redis**, un compte **Resend** avec un domaine vérifié, et une clé d'API **Anthropic**.
+- Un projet **Supabase** (base, Auth, Storage, Realtime), une base **Upstash Redis**, un compte **Resend** (un domaine vérifié est nécessaire pour envoyer à d'autres adresses que la sienne), et une clé d'API **Anthropic**.
 
 ### Installation
 
