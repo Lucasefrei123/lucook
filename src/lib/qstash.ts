@@ -11,11 +11,13 @@ export async function publierGeneration(generationId: string): Promise<void> {
   }
 
   const client = new Client({ token, baseUrl: process.env.QSTASH_URL });
+  const base = appUrl.replace(/\/$/, "");
 
   await client.publishJSON({
-    url: `${appUrl.replace(/\/$/, "")}/api/jobs/generer-recettes`,
+    url: `${base}/api/jobs/generer-recettes`,
     body: { generationId },
     retries: NOMBRE_REESSAIS,
     deduplicationId: generationId,
+    failureCallback: `${base}/api/jobs/echec-generation`,
   });
 }
