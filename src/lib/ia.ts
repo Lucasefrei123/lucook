@@ -49,16 +49,17 @@ function lireConfiguration() {
   const cle = process.env.AI_API_KEY;
   const modele = process.env.AI_MODEL;
   if (!baseUrl || !cle || !modele) {
-    throw new ErreurIA("Configuration du modèle incomplète.", 500, false);
+    console.error("[IA] Configuration incomplète : AI_BASE_URL, AI_API_KEY ou AI_MODEL manquant");
+    throw new ErreurIA("Le service de génération est momentanément indisponible.", 500, false);
   }
   return { baseUrl: baseUrl.replace(/\/$/, ""), cle, modele };
 }
 
 function messagePourStatut(status: number): string {
   if (status === 429) return "Le modèle est très sollicité, réessaie dans un instant.";
-  if (status === 401 || status === 403) return "Accès au modèle refusé (clé API invalide).";
+  if (status === 401 || status === 403) return "Le service de génération est momentanément indisponible.";
   if (status >= 500) return "Le modèle est momentanément indisponible.";
-  return "La requête envoyée au modèle est invalide.";
+  return "Ta demande n'a pas pu être traitée par le modèle. Reformule-la et réessaie.";
 }
 
 export async function appelerIA(

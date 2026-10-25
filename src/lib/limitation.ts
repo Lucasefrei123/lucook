@@ -3,7 +3,8 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { LIMITES } from "./recette";
 
-const QUOTA = Number(process.env.QUOTA_PAR_HEURE) || LIMITES.quotaParHeure;
+const QUOTA_GENERATIONS = Number(process.env.QUOTA_PAR_HEURE) || LIMITES.quotaParHeure;
+const QUOTA_EMAILS = 5;
 
 export type ResultatQuota = {
   autorise: boolean;
@@ -13,23 +14,25 @@ export type ResultatQuota = {
   degrade: boolean;
 };
 
-let limiteur: Ratelimit | null = null;
+const limiteurs = new Map<string, Ratelimit>();
 
-function obtenirLimiteur(): Ratelimit {
+function obtenirLimiteur(prefixe: string, quota: number): Ratelimit {
+  let limiteur = limiteurs.get(prefixe);
   if (!limiteur) {
     limiteur = new Ratelimit({
       redis: Redis.fromEnv(),
-      limiter: Ratelimit.slidingWindow(QUOTA, "1 h"),
-      prefix: "lucook:generations",
+      limiter: Ratelimit.slidingWindow(quota, "1 h"),
+      prefix: prefixe,
       timeout: 2000,
     });
+    limiteurs.set(prefixe, limiteur);
   }
   return limiteur;
 }
 
-export async function verifierQuota(userId: string): Promise<ResultatQuota> {
+async function verifier(prefixe: string, quota: number, userId: string): Promise<ResultatQuota> {
   try {
-    const resultat = await obtenirLimiteur().limit(userId);
+    const resultat = await obtenirLimiteur(prefixe, quota).limit(userId);
     return {
       autorise: resultat.success,
       limite: resultat.limit,
@@ -38,15 +41,23 @@ export async function verifierQuota(userId: string): Promise<ResultatQuota> {
       degrade: false,
     };
   } catch (erreur) {
-    console.error("[Quota] Redis indisponible, requête autorisée", erreur);
+    console.error("[Quota] Redis indisponible, requête refusée", erreur);
     return {
-      autorise: true,
-      limite: QUOTA,
-      restant: QUOTA,
+      autorise: false,
+      limite: quota,
+      restant: 0,
       reinitialisation: Date.now(),
       degrade: true,
     };
   }
+}
+
+export function verifierQuota(userId: string): Promise<ResultatQuota> {
+  return verifier("lucook:generations", QUOTA_GENERATIONS, userId);
+}
+
+export function verifierQuotaEmails(userId: string): Promise<ResultatQuota> {
+  return verifier("lucook:emails", QUOTA_EMAILS, userId);
 }
 
 export function entetesQuota(quota: ResultatQuota): Record<string, string> {
@@ -55,7 +66,7 @@ export function entetesQuota(quota: ResultatQuota): Record<string, string> {
     "X-RateLimit-Remaining": String(quota.restant),
     "X-RateLimit-Reset": String(Math.ceil(quota.reinitialisation / 1000)),
   };
-  if (!quota.autorise) {
+  if (!quota.autorise && !quota.degrade) {
     entetes["Retry-After"] = String(
       Math.max(1, Math.ceil((quota.reinitialisation - Date.now()) / 1000)),
     );

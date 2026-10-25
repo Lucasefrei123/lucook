@@ -34,6 +34,12 @@ export async function POST(request: NextRequest) {
   }
 
   const quota = await verifierQuota(user.id);
+  if (quota.degrade) {
+    return NextResponse.json(
+      { erreur: "Le service de génération est momentanément indisponible. Réessaie dans un instant." },
+      { status: 503 },
+    );
+  }
   if (!quota.autorise) {
     return NextResponse.json(
       {
