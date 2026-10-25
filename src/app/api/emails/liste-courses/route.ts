@@ -102,6 +102,12 @@ export async function POST(request: NextRequest) {
 
   if (!envoi.ok) {
     console.error("[E-mail] Envoi de la liste de courses impossible", envoi.erreur);
+    if (envoi.destinataireNonAutorise) {
+      return NextResponse.json(
+        { erreur: "L'envoi d'e-mails est limité au compte de démonstration pour le moment." },
+        { status: 403 },
+      );
+    }
     return NextResponse.json(
       { erreur: "L'e-mail n'a pas pu être envoyé. Réessaie dans un instant." },
       { status: 502 },

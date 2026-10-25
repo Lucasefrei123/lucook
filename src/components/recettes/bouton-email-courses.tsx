@@ -8,6 +8,7 @@ const MAX_RECETTES = 10;
 
 const MESSAGES_PAR_DEFAUT: Record<number, string> = {
   401: "Ta session a expiré. Reconnecte-toi pour continuer.",
+  403: "L'envoi d'e-mails est limité au compte de démonstration pour le moment.",
   404: "Certaines recettes sont introuvables. Recharge la page.",
   429: "Tu as atteint ta limite d'e-mails. Réessaie plus tard.",
   502: "L'e-mail n'a pas pu être envoyé. Réessaie dans un instant.",

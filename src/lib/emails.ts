@@ -3,7 +3,16 @@ import { Resend } from "resend";
 
 const DELAI_MS = 10_000;
 
-export type ResultatEnvoiEmail = { ok: true; id: string } | { ok: false; erreur: string };
+export type ResultatEnvoiEmail =
+  | { ok: true; id: string }
+  | { ok: false; erreur: string; destinataireNonAutorise: boolean };
+
+function estDestinataireNonAutorise(erreur: { statusCode: number | null; name: string; message: string }) {
+  return (
+    erreur.statusCode === 403 &&
+    (erreur.name === "validation_error" || /testing emails|verify a domain/i.test(erreur.message))
+  );
+}
 
 function lireConfiguration() {
   const cle = process.env.RESEND_API_KEY;
@@ -38,7 +47,9 @@ export async function envoyerEmail({
   cleIdempotence?: string;
 }): Promise<ResultatEnvoiEmail> {
   const configuration = lireConfiguration();
-  if (!configuration) return { ok: false, erreur: "RESEND_API_KEY ou EMAIL_EXPEDITEUR manquant" };
+  if (!configuration) {
+    return { ok: false, erreur: "RESEND_API_KEY ou EMAIL_EXPEDITEUR manquant", destinataireNonAutorise: false };
+  }
 
   try {
     const { data, error } = await avecDelai(
@@ -47,10 +58,21 @@ export async function envoyerEmail({
         cleIdempotence ? { idempotencyKey: cleIdempotence } : undefined,
       ),
     );
-    if (error || !data) return { ok: false, erreur: error?.message ?? "Réponse vide de Resend" };
+    if (error) {
+      return {
+        ok: false,
+        erreur: `${error.name} (${error.statusCode ?? "?"}) : ${error.message}`,
+        destinataireNonAutorise: estDestinataireNonAutorise(error),
+      };
+    }
+    if (!data) return { ok: false, erreur: "Réponse vide de Resend", destinataireNonAutorise: false };
     return { ok: true, id: data.id };
   } catch (erreur) {
-    return { ok: false, erreur: erreur instanceof Error ? erreur.message : "Erreur inconnue" };
+    return {
+      ok: false,
+      erreur: erreur instanceof Error ? erreur.message : "Erreur inconnue",
+      destinataireNonAutorise: false,
+    };
   }
 }
 
