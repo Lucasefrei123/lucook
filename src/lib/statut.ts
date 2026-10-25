@@ -3,6 +3,7 @@ import { Client } from "@upstash/qstash";
 import { Redis } from "@upstash/redis";
 import { appelerIA } from "./ia";
 import { executerControle, type Controle } from "./controles";
+import { verifierResend } from "./emails";
 import { creerClientAdmin } from "./supabase/admin";
 
 function echec(erreur: { message: string } | null): void {
@@ -91,6 +92,11 @@ export const CONTROLES: Controle[] = [
       if (!process.env.APP_URL) return { degrade: true, detail: "APP_URL manquante" };
       return { detail: `Worker : ${process.env.APP_URL}` };
     },
+  },
+  {
+    service: "E-mails",
+    description: "Resend",
+    verifier: verifierResend,
   },
 ];
 

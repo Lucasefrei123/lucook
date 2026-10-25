@@ -1,8 +1,9 @@
 "use client";
 
-import { Heart, Mail } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { BoutonEmailCourses } from "@/components/recettes/bouton-email-courses";
 import { BoutonFavori } from "@/components/recettes/bouton-favori";
 import { CarteRecette } from "@/components/recettes/carte-recette";
 import { EtatVide } from "@/components/recettes/etat-vide";
@@ -33,6 +34,11 @@ export function ListeRecettes({ recettesInitiales }: { recettesInitiales: Recett
           (filtreMode === "tous" || recette.mode === filtreMode) && (!favorisSeuls || recette.favori),
       ),
     [recettes, filtreMode, favorisSeuls],
+  );
+
+  const idsSelectionnes = useMemo(
+    () => recettes.filter((recette) => selection.has(recette.id)).map((recette) => recette.id),
+    [recettes, selection],
   );
 
   const toutesVisiblesSelectionnees =
@@ -188,20 +194,7 @@ export function ListeRecettes({ recettesInitiales }: { recettesInitiales: Recett
               </button>
             )}
           </p>
-          <div className="flex flex-col items-start gap-1 sm:items-end">
-            <button
-              type="button"
-              disabled
-              aria-describedby="email-bientot"
-              className="inline-flex min-h-10 items-center gap-2 rounded-[2px] bg-primary px-4 py-2 text-left text-sm font-medium text-primary-foreground opacity-50"
-            >
-              <Mail className="size-4 shrink-0" aria-hidden="true" />
-              Recevoir le résumé et la liste de courses par e-mail
-            </button>
-            <span id="email-bientot" className="text-xs text-muted-foreground">
-              Bientôt disponible
-            </span>
-          </div>
+          <BoutonEmailCourses recetteIds={idsSelectionnes} />
         </div>
       </div>
     </div>
